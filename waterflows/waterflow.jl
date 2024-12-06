@@ -1,9 +1,49 @@
 __precompile__(false)
 
-using Rasters, WhereTheWaterFlows
-using ArchGDAL
+using Rasters, WhereTheWaterFlows, ArchGDAL
+using Downloads, ZipFile
 
-dem = Raster("100-1012_high_dem_2cm_lv95.tif")
+# URL for the folder (replace with your actual link)
+#folder_url = "https://polybox.ethz.ch/index.php/s/7es7qxqCAFOoVUt/download"
+
+urls = [
+    "https://polybox.ethz.ch/index.php/s/KXRunB4blk82XMA/download"
+    "https://polybox.ethz.ch/index.php/s/6rVraOz9owox2qV/download"
+    "https://polybox.ethz.ch/index.php/s/kWw1gxRUxP4xXQ4/download"
+    "https://polybox.ethz.ch/index.php/s/Ul4UXndUtO6qbqS/download"
+    "https://polybox.ethz.ch/index.php/s/a2RwtK0ar4mijXm/download"
+]
+
+# Folder to save the files
+download_folder = "C:\\Users\\herol\\julia\\GlacierHydroFieldcourse.jl\\data\\raw\\dem"
+isdir(download_folder) || mkdir(download_folder)
+
+# Download each file
+for (i, url) in enumerate(urls)
+    file_name = joinpath(download_folder, "dem$(i).tif")
+    println("Downloading $url to $file_name")
+    Downloads.download(url, file_name)
+end
+
+println("Download complete!")
+"""
+# Define the path for the downloaded zip file
+zip_file_path = joinpath(download_folder, "aletsch_dems.zip")
+
+
+# Download the zip file
+println("Downloading the folder as a zip file...")
+Downloads.download(folder_url, zip_file_path)
+
+# Extract the zip file
+println("Extracting the zip file...")
+r = ZipFile.Reader(zip_file_path)
+
+?println("Download and extraction complete!")
+"""
+
+dem = Raster(joinpath(download_folder, "dem1.tif"))
+#dem = Raster("100-1012_high_dem_2cm_lv95.tif")
 #dem_crop = dem[5000:6000, 5000:6000]
 #dem = dem[1:2:length(dem[:,1]), 1:2:length(dem[1, :])]
 
