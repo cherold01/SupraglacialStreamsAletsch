@@ -46,7 +46,7 @@ r = ZipFile.Reader(zip_file_path)
 ?println("Download and extraction complete!")
 """
 
-dem = Raster(joinpath(download_folder, "dem1.tif"))
+dem = Raster(joinpath(download_folder, "dem2.tif"))
 #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
 #dem_crop = dem[5000:6000, 5000:6000]
 dem = dem[1:16:end, 1:16:end]
