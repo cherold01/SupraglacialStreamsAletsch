@@ -1,5 +1,5 @@
 __precompile__(false)
-
+plotyes = false
 using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
 
@@ -52,7 +52,7 @@ if !@isdefined plotyes
     plotyes = true
 end
 if plotyes
-    @eval using GLMakie
+    @eval using CairoMakie
 end
 using WhereTheWaterFlows
 if !(@isdefined WWF)
