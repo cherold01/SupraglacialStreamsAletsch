@@ -1,5 +1,5 @@
 __precompile__(false)
-plotyes = true
+#plotyes = true
 using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
 
@@ -49,7 +49,7 @@ r = ZipFile.Reader(zip_file_path)
 dem = Raster(joinpath(download_folder, "dem1.tif"))
 #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
 #dem_crop = dem[5000:6000, 5000:6000]
-dem = dem[1:4:end, 1:4:end]
+dem = dem[1:16:end, 1:16:end]
 
 #plotyes = true
 if !@isdefined plotyes
@@ -79,7 +79,6 @@ ys = -0.5:dx:3.0
 dem = ele.(xs, ys', randfac=0.1, withpit=true);
 """
 
-
 xs = 1:length(dem[:,1])
 ys = 1:length(dem[1, :])
 plotyes && heatmap(xs, ys, dem)
@@ -88,10 +87,11 @@ plotyes && heatmap(xs, ys, dem)
 area, slen, dir, nout, nin, sinks, pits, c, bnds  = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
 
 @assert size(dem)==(length(xs), length(ys))
-plotyes && plt_it(xs, ys, dem)
+fig = plotyes && plt_it(xs, ys, dem)
+save("3plots.png", fig)
 plotyes && plt_area(xs, ys, area, sinks)
 
 plotyes && plt_catchments(xs, ys, c)
 
-demf = WhereTheWaterFlows.fill_dem(dem, sinks, dir) #, small=1e-6)
-plotyes && heatmap(xs, ys, demf.-dem)
+#demf = WhereTheWaterFlows.fill_dem(dem, sinks, dir) #, small=1e-6)
+#plotyes && heatmap(xs, ys, demf.-dem)
