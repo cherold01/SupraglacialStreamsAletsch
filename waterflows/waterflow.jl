@@ -76,28 +76,6 @@ dem = ele.(xs, ys', randfac=0.1, withpit=true);
 """
 
 
-
-"""
-"Cropping the DEM to max of may graphic card"
-#max_texture_size = 16383 #max of my graphic card
-max_texture_size = 10000
-
-if length(dem[:,1]) >= max_texture_size
-    print("xmax reduced from $(length(dem[:,1])) to $max_texture_size ")
-    xmax = max_texture_size;
-else
-    xmax = length(dem[:,1])
-end
-if length(dem[1, :]) >= max_texture_size
-    print("ymax reduced from $(length(dem[1, :])) to $max_texture_size ")
-    ymax = max_texture_size;
-else
-    ymax = length(dem[1, :])
-end
-
-dem = dem[1:xmax, 1:ymax]
-"""
-
 xs = 1:length(dem[:,1])
 ys = 1:length(dem[1, :])
 plotyes && heatmap(xs, ys, dem)
