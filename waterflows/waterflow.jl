@@ -15,7 +15,7 @@ urls = [
 ]
 
 # Folder to save the files
-download_folder = "C:\\Users\\herol\\julia\\GlacierHydroFieldcourse.jl\\data\\raw\\dem"
+download_folder = joinpath(@__DIR__,"data\\raw\\dem")
 isdir(download_folder) || mkdir(download_folder)
 
 # Download each file
