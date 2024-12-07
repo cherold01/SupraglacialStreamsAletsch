@@ -1,6 +1,7 @@
 __precompile__(false)
 plotyes = false #plotting yes/no
 testrun = true #true uses sample data, false uses actual data 
+forcedownload = false #should download data automatically the first time, else change to true
 using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
 
@@ -12,7 +13,6 @@ if testrun == false
     download_folder = joinpath(@__DIR__,"data\\raw\\dem")
     isdir(download_folder) || mkdir(download_folder)
 
-    forcedownload = false
     if !isfile(joinpath(download_folder, "dem1.tif")) || forcedownload
 
         urls = [
@@ -52,11 +52,10 @@ if testrun == false
     dem = Raster(joinpath(download_folder, "dem2.tif"))
     #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
     #dem_crop = dem[5000:6000, 5000:6000]
-    #dem = dem[1:16:end, 1:16:end]
+    dem = dem[1:16:end, 1:16:end]
 
     xs = 1:length(dem[:,1])
     ys = 1:length(dem[1, :])
-    plotyes && heatmap(xs, ys, dem)
 end
 
 
@@ -86,6 +85,8 @@ if testrun == true
     ys = -0.5:dx:3.0
     dem = ele.(xs, ys', randfac=0.1, withpit=true);
 end
+
+plotyes && heatmap(xs, ys, dem)
 
 #area, slen, dir, nout, nin, sinks, pits, c, bnds  = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
 area, slen, dir, nout, nin, sinks, pits, c, bnds  = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
