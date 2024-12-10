@@ -1,16 +1,18 @@
 __precompile__(false)
-plotyes = false #plotting yes/no
-testrun = true #true uses sample data, false uses actual data 
+plotyes = true #plotting yes/no
+testrun = false #true uses sample data, false uses actual data 
 forcedownload = false #should download data automatically the first time, else change to true
+thin = 32 # step by which to thin the DEM
 using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
+include("filter.jl")
 
 # URL for the folder (replace with your actual link)
 #folder_url = "https://polybox.ethz.ch/index.php/s/7es7qxqCAFOoVUt/download"
 
 if testrun == false
     # Folder to save the files
-    download_folder = joinpath(@__DIR__,"data\\raw\\dem")
+    download_folder = joinpath(@__DIR__,"../data/raw/dem")
     isdir(download_folder) || mkdir(download_folder)
 
     if !isfile(joinpath(download_folder, "dem1.tif")) || forcedownload
@@ -49,13 +51,16 @@ if testrun == false
     ?println("Download and extraction complete!")
     """
 
-    dem = Raster(joinpath(download_folder, "dem2.tif"))
+    demorig = Raster(joinpath(download_folder, "dem2.tif"))
     #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
     #dem_crop = dem[5000:6000, 5000:6000]
-    dem = dem[1:16:end, 1:16:end]
+    dem = demorig[1:thin:end, 1:thin:end]
+    # Filtering doesn't seem to do much
+    # dem = boxcar(dem, 5*ones(Int, size(dem)))
 
     xs = 1:length(dem[:,1])
     ys = 1:length(dem[1, :])
+    dem = dem.data # raster causes some problems
 end
 
 
@@ -88,11 +93,11 @@ end
 
 plotyes && heatmap(xs, ys, dem)
 
-#area, slen, dir, nout, nin, sinks, pits, c, bnds  = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
-area, slen, dir, nout, nin, sinks, pits, c, bnds  = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
+@time out = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
+area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
 @assert size(dem)==(length(xs), length(ys))
-fig = plotyes && plt_it(xs, ys, dem)
+fig = plotyes && plt_it(xs, ys, out, dem) # using only dem as input will re-run the routing, which takes TIME
 plotyes && save("3plots.png", fig)
 plotyes && plt_area(xs, ys, area, sinks)
 
@@ -100,3 +105,4 @@ plotyes && plt_catchments(xs, ys, c)
 
 demf = WhereTheWaterFlows.fill_dem(dem, sinks, dir) #, small=1e-6)
 plotyes && heatmap(xs, ys, demf.-dem)
+plt_area(xs, ys, area, sinks)
