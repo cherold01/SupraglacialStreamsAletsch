@@ -63,7 +63,7 @@ if testrun == false
     ys = 1:length(dem[1, :])
     dem = dem.data # raster causes some problems
     value_to_replace = -32767.0f0
-    dem .= ifelse.(dem .== value_to_replace, NaN, A)
+    dem .= ifelse.(dem .== value_to_replace, NaN, dem)
 end
 
 
