@@ -2,7 +2,7 @@ __precompile__(false)
 plotyes = true #plotting yes/no
 testrun = false #true uses sample data, false uses actual data 
 forcedownload = false #should download data automatically the first time, else change to true
-thin = 32 # step by which to thin the DEM
+thin = 2 # step by which to thin the DEM
 using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
 include("filter.jl")
@@ -90,8 +90,12 @@ if testrun == true
     ys = -0.5:dx:3.0
     dem = ele.(xs, ys', randfac=0.1, withpit=true);
 end
+# maybe filter and thin:
+thin_plot = 2
+demplot = maxcar(dem, thin_plot*ones(size(dem)))[1:thin_plot:end, 1:thin_plot:end]
+plotyes && heatmap(xs, ys, demplot)
 
-plotyes && heatmap(xs, ys, dem)
+TODO: thin-filter other vars as well
 
 @time out = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
 area, slen, dir, nout, nin, sinks, pits, c, bnds = out
