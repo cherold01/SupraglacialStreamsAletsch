@@ -53,11 +53,10 @@ if testrun == false
     """
 
     demorig = Raster(joinpath(download_folder, "dem6.tif"))
-    xs_demorig = 1:length(demorig[:,1])
-    ys_demorig = 1:length(demorig[1, :])
     #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
     #dem_crop = dem[5000:6000, 5000:6000]
     dem = demorig[1:thin:end, 1:thin:end]
+    demorig_thin = dem
     # Filtering doesn't seem to do much
     # dem = boxcar(dem, 5*ones(Int, size(dem)))
 
@@ -122,7 +121,7 @@ ys = 1:length(dem[1, :])
 area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
 #save geotif
-arearaster = copy(dem[first_x:last_x, first_y:last_y])
+arearaster = copy(demorig_thin[first_x:last_x, first_y:last_y])
 arearaster[:,:] = area
 save("area.tif", arearaster)
 
