@@ -90,24 +90,27 @@ if testrun == true
     ys = -0.5:dx:3.0
     dem = ele.(xs, ys', randfac=0.1, withpit=true);
 end
+
 # maybe filter and thin:
 thin_plot = 2
 #demplot = maxcar(dem, thin_plot*ones(size(dem)))[1:thin_plot:end, 1:thin_plot:end]
 #plotyes && heatmap(xs, ys, demplot)
 
-TODO: thin-filter other vars as well
+#TODO: thin-filter other vars as well
 
 @time out = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
 area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
 @assert size(dem)==(length(xs), length(ys))
-fig = plotyes && plt_it(xs, ys, out, demplot) # using only dem as input will re-run the routing, which takes TIME
-plotyes && save("3plots.png", fig)
+#fig = plotyes && plt_it(xs, ys, out, demplot) # using only dem as input will re-run the routing, which takes TIME
+#plotyes && save("3plots.png", fig)
 
+areaplot = maxcar(area, thin_plot*ones(size(area)))[1:thin_plot:end, 1:thin_plot:end]
+sinksplot = maxcar(sinks, thin_plot*ones(size(sinks)))[1:thin_plot:end, 1:thin_plot:end]
+plotyes && plt_area(xs, ys, areaplot, sinksplot)
 
-plotyes && plt_area(xs, ys, area, sinks)
-
-plotyes && plt_catchments(xs, ys, c)
+cplot = boxcar(c, thin_plot*ones(size(c)))[1:thin_plot:end, 1:thin_plot:end]
+plotyes && plt_catchments(xs, ys, cplot)
 
 demf = WhereTheWaterFlows.fill_dem(dem, sinks, dir) #, small=1e-6)
 plotyes && heatmap(xs, ys, demf.-dem)
