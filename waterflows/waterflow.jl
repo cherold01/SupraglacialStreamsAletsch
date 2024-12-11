@@ -122,7 +122,7 @@ area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
 #save geotif
 arearaster = copy(demorig_thin[first_x:last_x, first_y:last_y])
-area .= ifelse.(isnan.(area), value_to_replace, area)
+#area .= ifelse.(isnan.(area), value_to_replace, area)
 arearaster[:,:] = area
 write("area.tif", arearaster, force = true)
 
