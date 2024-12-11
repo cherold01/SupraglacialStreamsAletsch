@@ -122,8 +122,9 @@ area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
 #save geotif
 arearaster = copy(demorig_thin[first_x:last_x, first_y:last_y])
+area .= ifelse.(isnan.(area), value_to_replace, area)
 arearaster[:,:] = area
-save("area.tif", arearaster)
+write("area.tif", arearaster, force = true)
 
 @assert size(dem)==(length(xs), length(ys))
 #fig = plotyes && plt_it(xs, ys, out, demplot) # using only dem as input will re-run the routing, which takes TIME
