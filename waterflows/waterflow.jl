@@ -2,7 +2,7 @@ __precompile__(false)
 plotyes = true #plotting yes/no
 testrun = false #true uses sample data, false uses actual data 
 forcedownload = false #should download data automatically the first time, else change to true
-thin = 2 # step by which to thin the DEM
+thin = 32 # step by which to thin the DEM
 using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
 include("filter.jl")
@@ -23,6 +23,7 @@ if testrun == false
             "https://polybox.ethz.ch/index.php/s/kWw1gxRUxP4xXQ4/download"
             "https://polybox.ethz.ch/index.php/s/Ul4UXndUtO6qbqS/download"
             "https://polybox.ethz.ch/index.php/s/a2RwtK0ar4mijXm/download"
+            "https://polybox.ethz.ch/index.php/s/Zyl26bkRfRBD6Rc/download"
         ]
 
         # Download each file
@@ -51,7 +52,7 @@ if testrun == false
     ?println("Download and extraction complete!")
     """
 
-    demorig = Raster(joinpath(download_folder, "dem2.tif"))
+    demorig = Raster(joinpath(download_folder, "dem6.tif"))
     #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
     #dem_crop = dem[5000:6000, 5000:6000]
     dem = demorig[1:thin:end, 1:thin:end]
@@ -92,7 +93,7 @@ if testrun == true
 end
 
 # maybe filter and thin:
-thin_plot = 2
+thin_plot = 1
 #demplot = maxcar(dem, thin_plot*ones(size(dem)))[1:thin_plot:end, 1:thin_plot:end]
 #plotyes && heatmap(xs, ys, demplot)
 
@@ -105,11 +106,11 @@ area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 #fig = plotyes && plt_it(xs, ys, out, demplot) # using only dem as input will re-run the routing, which takes TIME
 #plotyes && save("3plots.png", fig)
 
-areaplot = maxcar(area, thin_plot*ones(size(area)))[1:thin_plot:end, 1:thin_plot:end]
-sinksplot = maxcar(sinks, thin_plot*ones(size(sinks)))[1:thin_plot:end, 1:thin_plot:end]
-plotyes && plt_area(xs, ys, areaplot, sinksplot)
+#areaplot = maxcar(area, thin_plot*ones(size(area)))[1:thin_plot:end, 1:thin_plot:end]
+# sinksplot = maxcar(sinks, thin_plot*ones(size(sinks)))[1:thin_plot:end, 1:thin_plot:end]
+plotyes && plt_area(xs, ys, area, sinks)
 
-cplot = boxcar(c, thin_plot*ones(size(c)))[1:thin_plot:end, 1:thin_plot:end]
+cplot = c[1:thin_plot:end, 1:thin_plot:end]
 plotyes && plt_catchments(xs, ys, cplot)
 
 demf = WhereTheWaterFlows.fill_dem(dem, sinks, dir) #, small=1e-6)
