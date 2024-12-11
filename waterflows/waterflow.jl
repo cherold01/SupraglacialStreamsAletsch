@@ -1,7 +1,7 @@
 __precompile__(false)
 plotyes = true #plotting yes/no
 testrun = false #true uses sample data, false uses actual data 
-forcedownload = false #should download data automatically the first time, else change to true
+forcedownload = true #should download data automatically the first time, else change to true
 thin = 32 # step by which to thin the DEM
 using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
