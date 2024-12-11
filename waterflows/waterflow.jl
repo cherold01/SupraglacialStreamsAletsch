@@ -104,6 +104,22 @@ thin_plot = 1
 @time out = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
 area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
+#crop DEM to exclude areas with only NaN
+# Find all indices that are not NaN
+indices = findall(!isnan, dem)
+# Extract x and y coordinates
+x_coords = [I[1] for I in indices]
+y_coords = [I[2] for I in indices]
+# Find the first and last x and y values
+first_x = minimum(x_coords)
+last_x = maximum(x_coords)
+first_y = minimum(y_coords)
+last_y = maximum(y_coords)
+dem = dem[first_x:last_x, first_y:last_y]
+xs = 1:length(dem[:,1])
+ys = 1:length(dem[1, :])
+
+
 @assert size(dem)==(length(xs), length(ys))
 #fig = plotyes && plt_it(xs, ys, out, demplot) # using only dem as input will re-run the routing, which takes TIME
 #plotyes && save("3plots.png", fig)
