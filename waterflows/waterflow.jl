@@ -101,9 +101,6 @@ thin_plot = 1
 
 #TODO: thin-filter other vars as well
 
-@time out = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
-area, slen, dir, nout, nin, sinks, pits, c, bnds = out
-
 #crop DEM to exclude areas with only NaN
 # Find all indices that are not NaN
 indices = findall(!isnan, dem)
@@ -118,6 +115,9 @@ last_y = maximum(y_coords)
 dem = dem[first_x:last_x, first_y:last_y]
 xs = 1:length(dem[:,1])
 ys = 1:length(dem[1, :])
+
+@time out = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
+area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
 
 @assert size(dem)==(length(xs), length(ys))
