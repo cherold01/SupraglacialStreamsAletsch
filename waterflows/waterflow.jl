@@ -53,6 +53,8 @@ if testrun == false
     """
 
     demorig = Raster(joinpath(download_folder, "dem6.tif"))
+    xs_demorig = 1:length(demorig[:,1])
+    ys_demorig = 1:length(demorig[1, :])
     #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
     #dem_crop = dem[5000:6000, 5000:6000]
     dem = demorig[1:thin:end, 1:thin:end]
@@ -119,6 +121,10 @@ ys = 1:length(dem[1, :])
 @time out = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
 area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
+#save geotif
+arearaster = copy(dem[first_x:last_x, first_y:last_y])
+arearaster[:,:] = area
+save("area.tif", arearaster)
 
 @assert size(dem)==(length(xs), length(ys))
 #fig = plotyes && plt_it(xs, ys, out, demplot) # using only dem as input will re-run the routing, which takes TIME
