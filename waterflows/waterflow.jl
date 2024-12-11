@@ -108,10 +108,12 @@ area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 
 #areaplot = maxcar(area, thin_plot*ones(size(area)))[1:thin_plot:end, 1:thin_plot:end]
 # sinksplot = maxcar(sinks, thin_plot*ones(size(sinks)))[1:thin_plot:end, 1:thin_plot:end]
-plotyes && plt_area(xs, ys, area, sinks)
+fig = plotyes && plt_area(xs, ys, area, sinks)
+plotyes && save("plot_area.png", fig)
 
 cplot = c[1:thin_plot:end, 1:thin_plot:end]
-plotyes && plt_catchments(xs, ys, cplot)
+fig = plotyes && plt_catchments(xs, ys, cplot)
+plotyes && save("plot_catchment.png", fig)
 
 demf = WhereTheWaterFlows.fill_dem(dem, sinks, dir) #, small=1e-6)
 plotyes && heatmap(xs, ys, demf.-dem)
