@@ -103,6 +103,8 @@ area, slen, dir, nout, nin, sinks, pits, c, bnds = out
 moulin_sinks = make_boxes(dem, diff(xs)[1]*5)
 cs = [WWF.catchment(dir, s) for s in moulin_sinks] .* (1:4)
 cs = Raster(cs[1] .+ cs[2] .+ cs[3] .+ cs[4], missingval=0)
+
+c = Raster(c, missingval=0)
 #save geotif
 write("area.tif", area, force = true)
 
@@ -115,7 +117,7 @@ write("area.tif", area, force = true)
 fig = plotyes && plt_area(xs, ys, area.data, sinks)
 plotyes && save("plot_area.png", fig)
 
-fig = plotyes && plt_catchments(xs, ys, c.data)
+fig = plotyes && heatmap(c)
 plotyes && save("plot_catchment.png", fig)
 
 # fig = plotyes && plt_catchments(xs, ys, cs.data) # unfortunately one area is white...
