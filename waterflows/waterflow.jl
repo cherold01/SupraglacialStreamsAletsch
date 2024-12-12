@@ -5,7 +5,7 @@ forcedownload = false #should download data automatically the first time, else c
 thin = 32 # step by which to thin the DEM
 using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
-include("filter.jl")
+include("helpers.jl")
 
 # URL for the folder (replace with your actual link)
 #folder_url = "https://polybox.ethz.ch/index.php/s/7es7qxqCAFOoVUt/download"
@@ -52,19 +52,13 @@ if testrun == false
     ?println("Download and extraction complete!")
     """
 
-    demorig = Raster(joinpath(download_folder, "dem6.tif"))
+    demorig = crop_dem_nan(replace_missing(Raster(joinpath(download_folder, "dem6.tif")), NaN))
     #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
     #dem_crop = dem[5000:6000, 5000:6000]
     dem = demorig[1:thin:end, 1:thin:end]
-    demorig_thin = dem
     # Filtering doesn't seem to do much
     # dem = boxcar(dem, 5*ones(Int, size(dem)))
-
-    xs = 1:length(dem[:,1])
-    ys = 1:length(dem[1, :])
-    dem = dem.data # raster causes some problems
-    value_to_replace = -32767.0f0
-    dem .= ifelse.(dem .== value_to_replace, NaN, dem)
+    xs, ys = lookup(dem, X), lookup(dem, Y)
 end
 
 
@@ -102,29 +96,15 @@ thin_plot = 1
 
 #TODO: thin-filter other vars as well
 
-#crop DEM to exclude areas with only NaN
-# Find all indices that are not NaN
-indices = findall(!isnan, dem)
-# Extract x and y coordinates
-x_coords = [I[1] for I in indices]
-y_coords = [I[2] for I in indices]
-# Find the first and last x and y values
-first_x = minimum(x_coords)
-last_x = maximum(x_coords)
-first_y = minimum(y_coords)
-last_y = maximum(y_coords)
-dem = dem[first_x:last_x, first_y:last_y]
-xs = 1:length(dem[:,1])
-ys = 1:length(dem[1, :])
 
 @time out = WhereTheWaterFlows.waterflows(dem, drain_pits=true);
 area, slen, dir, nout, nin, sinks, pits, c, bnds = out
-
+# calculate catchments of moulins
+moulin_sinks = make_boxes(dem, diff(xs)[1]*5)
+cs = [WWF.catchment(dir, s) for s in moulin_sinks] .* (1:4)
+cs = Raster(cs[1] .+ cs[2] .+ cs[3] .+ cs[4], missingval=0)
 #save geotif
-arearaster = copy(demorig_thin[first_x:last_x, first_y:last_y])
-#area .= ifelse.(isnan.(area), value_to_replace, area)
-arearaster[:,:] = area
-write("area.tif", arearaster, force = true)
+write("area.tif", area, force = true)
 
 @assert size(dem)==(length(xs), length(ys))
 #fig = plotyes && plt_it(xs, ys, out, demplot) # using only dem as input will re-run the routing, which takes TIME
@@ -132,13 +112,16 @@ write("area.tif", arearaster, force = true)
 
 #areaplot = maxcar(area, thin_plot*ones(size(area)))[1:thin_plot:end, 1:thin_plot:end]
 # sinksplot = maxcar(sinks, thin_plot*ones(size(sinks)))[1:thin_plot:end, 1:thin_plot:end]
-fig = plotyes && plt_area(xs, ys, area, sinks)
+fig = plotyes && plt_area(xs, ys, area.data, sinks)
 plotyes && save("plot_area.png", fig)
 
-cplot = c[1:thin_plot:end, 1:thin_plot:end]
-fig = plotyes && plt_catchments(xs, ys, cplot)
+fig = plotyes && plt_catchments(xs, ys, c.data)
 plotyes && save("plot_catchment.png", fig)
 
+# fig = plotyes && plt_catchments(xs, ys, cs.data) # unfortunately one area is white...
+fig = plotyes && heatmap(cs)
+plotyes && save("plot_catchment_moulins.png", fig)
+
 demf = WhereTheWaterFlows.fill_dem(dem, sinks, dir) #, small=1e-6)
-plotyes && heatmap(xs, ys, demf.-dem)
-plt_area(xs, ys, area, sinks)
+plotyes && heatmap(demf.-dem)
+plt_area(xs, ys, area.data, sinks)
