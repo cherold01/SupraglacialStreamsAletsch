@@ -7,9 +7,6 @@ using Rasters, WhereTheWaterFlows, ArchGDAL
 using Downloads, ZipFile
 include("helpers.jl")
 
-# URL for the folder (replace with your actual link)
-#folder_url = "https://polybox.ethz.ch/index.php/s/7es7qxqCAFOoVUt/download"
-
 if testrun == false
     # Folder to save the files
     download_folder = joinpath(@__DIR__,"../data/raw/dem")
@@ -35,32 +32,10 @@ if testrun == false
         println("Download complete!")
     end
 
-    """
-    #for zip folders
-    # Define the path for the downloaded zip file
-    zip_file_path = joinpath(download_folder, "aletsch_dems.zip")
-
-
-    # Download the zip file
-    println("Downloading the folder as a zip file...")
-    Downloads.download(folder_url, zip_file_path)
-
-    # Extract the zip file
-    println("Extracting the zip file...")
-    r = ZipFile.Reader(zip_file_path)
-
-    ?println("Download and extraction complete!")
-    """
-
-    demorig = crop_dem_nan(replace_missing(Raster(joinpath(download_folder, "dem6.tif")), NaN))
-    #dem = Raster("100-1012_high_dem_2cm_lv95.tif")
-    #dem_crop = dem[5000:6000, 5000:6000]
+    demorig = crop_dem_nan(replace_missing(Raster(joinpath(download_folder, "dem3.tif")), NaN))
     dem = demorig[1:thin:end, 1:thin:end]
-    # Filtering doesn't seem to do much
-    # dem = boxcar(dem, 5*ones(Int, size(dem)))
     xs, ys = lookup(dem, X), lookup(dem, Y)
 end
-
 
 if !@isdefined plotyes
     plotyes = true
